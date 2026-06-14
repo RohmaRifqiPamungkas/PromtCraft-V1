@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useMemo, useCallback } from "react"
-import { Sidebar }           from "@/components/layout/Sidebar"
-import { PromptWizard }      from "@/components/prompt/PromptWizard"
-import { PromptPreview }     from "@/components/prompt/PromptPreview"
-import { ToastNotification } from "@/components/ui/toast-notification"
-import { compilePrompt }     from "@/lib/prompt-compiler"
+import { Sidebar }            from "@/components/layout/Sidebar"
+import { PromptWizard }       from "@/components/prompt/PromptWizard"
+import { PromptPreview }      from "@/components/prompt/PromptPreview"
+import { ToastNotification }  from "@/components/ui/toast-notification"
+import { compilePrompt }      from "@/lib/prompt-compiler"
 import type { WizardFormData, WizardStep } from "@/types/prompt"
 
 const DEFAULT_FORM: WizardFormData = {
@@ -22,24 +22,35 @@ const DEFAULT_FORM: WizardFormData = {
   includeIndexes:      false,
 }
 
-export default function DashboardPage() {
-  const [currentStep,  setCurrentStep]  = useState<WizardStep>(1)
-  const [formData,     setFormData]     = useState<WizardFormData>(DEFAULT_FORM)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isGenerated,  setIsGenerated]  = useState(false)
-  const [toastMsg,     setToastMsg]     = useState<string | null>(null)
+interface Toast {
+  msg:     string
+  variant: "success" | "error"
+}
 
-  /* Live prompt — recompiles on every state change */
+export default function DashboardPage() {
+  const [currentStep,    setCurrentStep]    = useState<WizardStep>(1)
+  const [formData,       setFormData]       = useState<WizardFormData>(DEFAULT_FORM)
+  const [isGenerating,   setIsGenerating]   = useState(false)
+  const [isGenerated,    setIsGenerated]    = useState(false)
+  const [enhancedPrompt, setEnhancedPrompt] = useState<string | null>(null)
+  const [isEnhancing,    setIsEnhancing]    = useState(false)
+  const [toast,          setToast]          = useState<Toast | null>(null)
+
+  /* Live prompt — recompiles on every form change */
   const compiledPrompt = useMemo(() => compilePrompt(formData), [formData])
 
-  const showToast = useCallback((msg: string) => {
-    setToastMsg(msg)
-    setTimeout(() => setToastMsg(null), 3000)
+  /* Enhanced prompt wins when available; falls back to compiled */
+  const activePrompt = enhancedPrompt ?? compiledPrompt
+
+  const showToast = useCallback((msg: string, variant: "success" | "error" = "success") => {
+    setToast({ msg, variant })
+    setTimeout(() => setToast(null), 3000)
   }, [])
 
   const handleFormChange = useCallback((delta: Partial<WizardFormData>) => {
     setFormData((prev) => ({ ...prev, ...delta }))
     setIsGenerated(false)
+    setEnhancedPrompt(null)
   }, [])
 
   const handleGenerate = useCallback(async () => {
@@ -52,23 +63,60 @@ export default function DashboardPage() {
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(compiledPrompt)
+      await navigator.clipboard.writeText(activePrompt)
       showToast("Copied to clipboard!")
     } catch {
-      showToast("Copy failed — please select text manually.")
+      showToast("Copy failed — please select text manually.", "error")
     }
-  }, [compiledPrompt, showToast])
+  }, [activePrompt, showToast])
 
   const handleDownload = useCallback(() => {
-    const blob = new Blob([compiledPrompt], { type: "text/markdown;charset=utf-8" })
+    const blob = new Blob([activePrompt], { type: "text/markdown;charset=utf-8" })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement("a")
     a.href     = url
-    a.download = "promptcraft-output.md"
+    a.download = enhancedPrompt ? "promptcraft-enhanced.md" : "promptcraft-output.md"
     a.click()
     URL.revokeObjectURL(url)
     showToast("Markdown file downloaded!")
+  }, [activePrompt, enhancedPrompt, showToast])
+
+  const handleEnhance = useCallback(async () => {
+    if (!compiledPrompt.trim()) {
+      showToast("Fill in the wizard before enhancing.", "error")
+      return
+    }
+    setIsEnhancing(true)
+    try {
+      const res = await fetch("/api/enhance", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ prompt: compiledPrompt }),
+      })
+      const json = (await res.json()) as {
+        success: boolean
+        enhancedPrompt?: string
+        error?: string
+      }
+      if (json.success && json.enhancedPrompt) {
+        setEnhancedPrompt(json.enhancedPrompt)
+        setIsGenerated(true)
+        showToast("Prompt enhanced by Gemini!")
+      } else {
+        showToast(json.error ?? "Enhancement failed", "error")
+      }
+    } catch {
+      showToast("Network error — please try again.", "error")
+    } finally {
+      setIsEnhancing(false)
+    }
   }, [compiledPrompt, showToast])
+
+  const handleRestoreHistory = useCallback((prompt: string) => {
+    setEnhancedPrompt(prompt)
+    setIsGenerated(true)
+    showToast("Prompt restored from history!")
+  }, [showToast])
 
   return (
     <div className="bg-background text-on-surface h-screen flex overflow-hidden">
@@ -95,17 +143,25 @@ export default function DashboardPage() {
           <div className="hidden xl:block w-px bg-outline-variant hover:bg-secondary-container transition-colors cursor-col-resize" />
 
           <PromptPreview
-            prompt={compiledPrompt}
+            prompt={activePrompt}
             isGenerated={isGenerated}
             isGenerating={isGenerating}
+            isEnhanced={enhancedPrompt !== null}
+            isEnhancing={isEnhancing}
             onCopy={handleCopy}
             onDownload={handleDownload}
+            onEnhance={handleEnhance}
+            onRestoreHistory={handleRestoreHistory}
           />
         </div>
       </main>
 
-      {toastMsg && (
-        <ToastNotification message={toastMsg} onDismiss={() => setToastMsg(null)} />
+      {toast && (
+        <ToastNotification
+          message={toast.msg}
+          variant={toast.variant}
+          onDismiss={() => setToast(null)}
+        />
       )}
     </div>
   )
