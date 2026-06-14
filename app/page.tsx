@@ -1,65 +1,112 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState, useMemo, useCallback } from "react"
+import { Sidebar }           from "@/components/layout/Sidebar"
+import { PromptWizard }      from "@/components/prompt/PromptWizard"
+import { PromptPreview }     from "@/components/prompt/PromptPreview"
+import { ToastNotification } from "@/components/ui/toast-notification"
+import { compilePrompt }     from "@/lib/prompt-compiler"
+import type { WizardFormData, WizardStep } from "@/types/prompt"
+
+const DEFAULT_FORM: WizardFormData = {
+  projectType:         "SaaS Application",
+  entities:            "",
+  framework:           "node-express",
+  database:            "postgresql",
+  apiStyle:            "rest",
+  includeSqlDdl:       true,
+  repositoryPattern:   true,
+  unitTestBoilerplate: true,
+  solidPrinciples:     true,
+  typescriptStrict:    true,
+  includeIndexes:      false,
+}
+
+export default function DashboardPage() {
+  const [currentStep,  setCurrentStep]  = useState<WizardStep>(1)
+  const [formData,     setFormData]     = useState<WizardFormData>(DEFAULT_FORM)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isGenerated,  setIsGenerated]  = useState(false)
+  const [toastMsg,     setToastMsg]     = useState<string | null>(null)
+
+  /* Live prompt — recompiles on every state change */
+  const compiledPrompt = useMemo(() => compilePrompt(formData), [formData])
+
+  const showToast = useCallback((msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(null), 3000)
+  }, [])
+
+  const handleFormChange = useCallback((delta: Partial<WizardFormData>) => {
+    setFormData((prev) => ({ ...prev, ...delta }))
+    setIsGenerated(false)
+  }, [])
+
+  const handleGenerate = useCallback(async () => {
+    setIsGenerating(true)
+    await new Promise<void>((r) => setTimeout(r, 1000))
+    setIsGenerating(false)
+    setIsGenerated(true)
+    showToast("Prompt structure generated!")
+  }, [showToast])
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(compiledPrompt)
+      showToast("Copied to clipboard!")
+    } catch {
+      showToast("Copy failed — please select text manually.")
+    }
+  }, [compiledPrompt, showToast])
+
+  const handleDownload = useCallback(() => {
+    const blob = new Blob([compiledPrompt], { type: "text/markdown;charset=utf-8" })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement("a")
+    a.href     = url
+    a.download = "promptcraft-output.md"
+    a.click()
+    URL.revokeObjectURL(url)
+    showToast("Markdown file downloaded!")
+  }, [compiledPrompt, showToast])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <div className="bg-background text-on-surface h-screen flex overflow-hidden">
+      <Sidebar />
+
+      <main className="md:ml-[280px] flex-1 flex flex-col h-full bg-surface-dim overflow-hidden">
+        {/* Mobile header */}
+        <header className="flex md:hidden justify-between items-center px-6 h-16 bg-surface border-b border-outline-variant shrink-0">
+          <span className="text-xl font-bold text-primary tracking-tight">PromptCraft AI</span>
+        </header>
+
+        {/* Split-screen */}
+        <div className="flex-1 flex flex-col xl:flex-row overflow-hidden">
+          <PromptWizard
+            currentStep={currentStep}
+            formData={formData}
+            isGenerating={isGenerating}
+            onStepChange={setCurrentStep}
+            onFormChange={handleFormChange}
+            onGenerate={handleGenerate}
+          />
+
+          {/* Visual divider */}
+          <div className="hidden xl:block w-px bg-outline-variant hover:bg-secondary-container transition-colors cursor-col-resize" />
+
+          <PromptPreview
+            prompt={compiledPrompt}
+            isGenerated={isGenerated}
+            isGenerating={isGenerating}
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+          />
         </div>
       </main>
+
+      {toastMsg && (
+        <ToastNotification message={toastMsg} onDismiss={() => setToastMsg(null)} />
+      )}
     </div>
-  );
+  )
 }

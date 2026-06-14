@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Font mapping from next/font CSS variables */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-geist-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Design token colors — all utilities auto-generated */
+@theme {
+  /* Primary — Emerald */
+  --color-primary: #4edea3;
+  --color-primary-container: #10b981;
+  --color-primary-fixed: #6ffbbe;
+  --color-primary-fixed-dim: #4edea3;
+  --color-on-primary: #003824;
+  --color-on-primary-container: #00422b;
+  --color-on-primary-fixed: #002113;
+  --color-on-primary-fixed-variant: #005236;
+  --color-inverse-primary: #006c49;
+
+  /* Secondary — Indigo */
+  --color-secondary: #c0c1ff;
+  --color-secondary-container: #3131c0;
+  --color-secondary-fixed: #e1e0ff;
+  --color-secondary-fixed-dim: #c0c1ff;
+  --color-on-secondary: #1000a9;
+  --color-on-secondary-container: #b0b2ff;
+  --color-on-secondary-fixed: #07006c;
+  --color-on-secondary-fixed-variant: #2f2ebe;
+
+  /* Tertiary — Zinc */
+  --color-tertiary: #c4c7c9;
+  --color-tertiary-container: #a0a3a5;
+  --color-tertiary-fixed: #e0e3e5;
+  --color-tertiary-fixed-dim: #c4c7c9;
+  --color-on-tertiary: #2d3133;
+  --color-on-tertiary-container: #36393b;
+  --color-on-tertiary-fixed: #191c1e;
+  --color-on-tertiary-fixed-variant: #444749;
+
+  /* Error */
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error: #690005;
+  --color-on-error-container: #ffdad6;
+
+  /* Surface hierarchy */
+  --color-background: #0b1326;
+  --color-surface: #0b1326;
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+  --color-surface-variant: #2d3449;
+  --color-surface-tint: #4edea3;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+
+  /* On-surface */
+  --color-on-background: #dae2fd;
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #bbcabf;
+
+  /* Outline */
+  --color-outline: #86948a;
+  --color-outline-variant: #3c4a42;
+
+  /* Inverse */
+  --color-inverse-surface: #dae2fd;
+  --color-inverse-on-surface: #283044;
 }
+
+/* Animations */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.animate-toast       { animation: toast-in 0.2s ease-out forwards; }
+.animate-fade-in     { animation: fade-in 0.3s ease-out forwards; }
+.animate-pulse-glow  { animation: pulse-glow 1.5s ease-in-out infinite; }
+
+/* Force dark color-scheme */
+html { color-scheme: dark; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0b1326;
+  color: #dae2fd;
 }
+
+/* Icon size utility used in Sidebar */
+.h-4\.5 { height: 1.125rem; }
+.w-4\.5 { width:  1.125rem; }
+
+/* Thin scrollbars */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: #3c4a42; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: #86948a; }
+
+/* Selection */
+::selection { background-color: #10b981; color: #00422b; }
