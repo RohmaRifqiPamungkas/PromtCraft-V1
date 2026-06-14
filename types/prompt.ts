@@ -18,3 +18,10 @@ export interface WizardFormData {
 }
 
 export type WizardStep = 1 | 2 | 3
+
+export interface PromptHistoryItem {
+  id: string
+  original_prompt: string
+  enhanced_prompt: string | null
+  created_at: string
+}
