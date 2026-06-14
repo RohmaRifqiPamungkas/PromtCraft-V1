@@ -25,7 +25,7 @@ function Connector({ active }: { active: boolean }) {
 
 export function ProgressStepper({ currentStep }: { currentStep: WizardStep }) {
   return (
-    <div className="flex items-start gap-0 w-full max-w-xs">
+    <div className="flex items-start gap-0 w-full max-w-xs mx-auto">
       {STEPS.map((step, idx) => {
         const done    = step.n < currentStep
         const active  = step.n === currentStep
