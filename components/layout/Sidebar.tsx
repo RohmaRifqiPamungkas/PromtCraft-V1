@@ -1,30 +1,26 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard,
-  GitBranch,
-  DatabaseZap,
-  Layers,
-  Terminal,
-  FileText,
-  Settings,
-  LifeBuoy,
-  BadgeCheck,
+  LayoutDashboard, GitBranch, DatabaseZap,
+  Layers, Terminal, FileText, Settings, LifeBuoy, BadgeCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard",     href: "#" },
+  { icon: LayoutDashboard, label: "Dashboard",     href: "/dashboard" },
   { icon: GitBranch,       label: "Business Flow", href: "#" },
   { icon: DatabaseZap,     label: "Architecture",  href: "#" },
-  { icon: Layers,          label: "DB & API",      href: "#", active: true },
-  { icon: Terminal,        label: "Code Gen",      href: "#" },
-  { icon: FileText,        label: "Templates",     href: "#" },
-  { icon: Settings,        label: "Settings",      href: "#" },
+  { icon: Layers,          label: "DB & API",      href: "/wizard" },
+  { icon: Terminal,        label: "Code Gen",       href: "#" },
+  { icon: FileText,        label: "Templates",      href: "#" },
+  { icon: Settings,        label: "Settings",       href: "#" },
 ]
 
 export function Sidebar() {
+  const pathname = usePathname()
+
   return (
     <aside className="hidden md:flex flex-col bg-surface-container fixed inset-y-0 left-0 w-[280px] border-r border-outline-variant z-20">
 
@@ -34,35 +30,35 @@ export function Sidebar() {
           P
         </div>
         <div className="min-w-0">
-          <h1 className="text-[16px] font-bold text-on-surface leading-tight">
-            PromptCraft AI
-          </h1>
-          <span className="text-[10px] font-mono tracking-widest text-on-surface-variant/60">
-            v1.0.4-beta
-          </span>
+          <h1 className="text-[16px] font-bold text-on-surface leading-tight">PromptCraft AI</h1>
+          <span className="text-[10px] font-mono tracking-widest text-on-surface-variant/60">v1.0.4-beta</span>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ icon: Icon, label, href, active }) => (
-          <Link
-            key={label}
-            href={href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-[13.5px]",
-              active
-                ? "bg-primary/10 text-primary font-medium border border-primary/15"
-                : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-            )}
-          >
-            <Icon className={cn("w-[18px] h-[18px] shrink-0", active ? "text-primary" : "")} strokeWidth={active ? 2 : 1.75} />
-            {label}
-            {active && (
-              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-            )}
-          </Link>
-        ))}
+        {NAV.map(({ icon: Icon, label, href }) => {
+          const active = pathname === href
+          return (
+            <Link
+              key={label}
+              href={href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-[13.5px]",
+                active
+                  ? "bg-primary/10 text-primary font-medium border border-primary/15"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+              )}
+            >
+              <Icon
+                className={cn("w-[18px] h-[18px] shrink-0", active && "text-primary")}
+                strokeWidth={active ? 2 : 1.75}
+              />
+              {label}
+              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
+            </Link>
+          )
+        })}
       </nav>
 
       {/* Bottom section */}
@@ -75,7 +71,6 @@ export function Sidebar() {
           Help Center
         </Link>
 
-        {/* User card */}
         <div className="mt-1 px-3 py-3 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-secondary-container/30 border border-outline-variant flex items-center justify-center text-secondary font-semibold text-sm shrink-0 select-none">
             A
