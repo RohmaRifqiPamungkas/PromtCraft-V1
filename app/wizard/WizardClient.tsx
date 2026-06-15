@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { PromptWizard } from "@/components/prompt/PromptWizard"
 import { PromptPreview } from "@/components/prompt/PromptPreview"
@@ -28,8 +29,25 @@ interface Toast {
 }
 
 export function WizardClient() {
+  const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<WizardStep>(1)
-  const [formData, setFormData] = useState<WizardFormData>(DEFAULT_FORM)
+  const [formData, setFormData] = useState<WizardFormData>(() => {
+    const flags = searchParams.get("flags")?.split(",") ?? []
+    const hasFlags = flags.length > 0
+    return {
+      projectType: searchParams.get("projectType") ?? DEFAULT_FORM.projectType,
+      entities:    searchParams.get("entities")    ?? DEFAULT_FORM.entities,
+      framework:   searchParams.get("framework")   ?? DEFAULT_FORM.framework,
+      database:    searchParams.get("database")    ?? DEFAULT_FORM.database,
+      apiStyle:    searchParams.get("apiStyle")    ?? DEFAULT_FORM.apiStyle,
+      includeSqlDdl:        hasFlags ? flags.includes("includeSqlDdl")        : DEFAULT_FORM.includeSqlDdl,
+      repositoryPattern:    hasFlags ? flags.includes("repositoryPattern")    : DEFAULT_FORM.repositoryPattern,
+      unitTestBoilerplate:  hasFlags ? flags.includes("unitTestBoilerplate")  : DEFAULT_FORM.unitTestBoilerplate,
+      solidPrinciples:      hasFlags ? flags.includes("solidPrinciples")      : DEFAULT_FORM.solidPrinciples,
+      typescriptStrict:     hasFlags ? flags.includes("typescriptStrict")     : DEFAULT_FORM.typescriptStrict,
+      includeIndexes:       hasFlags ? flags.includes("includeIndexes")       : DEFAULT_FORM.includeIndexes,
+    }
+  })
   const [isGenerating, setIsGenerating] = useState(false)
   const [isGenerated, setIsGenerated] = useState(false)
   const [enhancedPrompt, setEnhancedPrompt] = useState<string | null>(null)
