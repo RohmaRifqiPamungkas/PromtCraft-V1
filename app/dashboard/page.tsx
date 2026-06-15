@@ -193,7 +193,7 @@ export default async function DashboardPage() {
               <div className="space-y-2.5">
                 <ActionCard icon={Layers} title="DB & API Wizard" desc="Generate backend architecture prompts" href="/" />
                 <ActionCard icon={Terminal} title="Code Generator" desc="Generate boilerplate code snippets" href="#" soon />
-                <ActionCard icon={FileText} title="Templates" desc="Browse ready-made prompt templates" href="#" soon />
+                <ActionCard icon={FileText} title="Templates" desc="Browse ready-made prompt templates" href="/templates" />
               </div>
             </div>
 

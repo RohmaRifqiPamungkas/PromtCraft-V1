@@ -9,13 +9,13 @@ import {
 import { cn } from "@/lib/utils"
 
 const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard",     href: "/dashboard" },
-  { icon: GitBranch,       label: "Business Flow", href: "#" },
-  { icon: DatabaseZap,     label: "Architecture",  href: "#" },
-  { icon: Layers,          label: "DB & API",      href: "/wizard" },
-  { icon: Terminal,        label: "Code Gen",       href: "/code-generator" },
-  { icon: FileText,        label: "Templates",      href: "#" },
-  { icon: Settings,        label: "Settings",       href: "#" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: GitBranch, label: "Business Flow", href: "#" },
+  { icon: DatabaseZap, label: "Architecture", href: "#" },
+  { icon: Layers, label: "DB & API", href: "/wizard" },
+  { icon: Terminal, label: "Code Gen", href: "/code-generator" },
+  { icon: FileText, label: "Templates", href: "/templates" },
+  { icon: Settings, label: "Settings", href: "#" },
 ]
 
 export function Sidebar() {
