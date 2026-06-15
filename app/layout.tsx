@@ -19,11 +19,6 @@ const jetbrainsMono = JetBrains_Mono({
   weight:   ["400", "600"],
 })
 
-export const metadata: Metadata = {
-  title:       "PromptCraft AI — DB & API Design",
-  description: "AI Prompt Architect for database and API design workflows.",
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
