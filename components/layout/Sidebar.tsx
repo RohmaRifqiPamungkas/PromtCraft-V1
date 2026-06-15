@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils"
 
 const NAV = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: GitBranch, label: "Business Flow", href: "#" },
-  { icon: DatabaseZap, label: "Architecture", href: "#" },
+  { icon: GitBranch, label: "Business Flow", href: "#", isComingSoon: true },
+  { icon: DatabaseZap, label: "Architecture", href: "#", isComingSoon: true },
   { icon: Layers, label: "DB & API", href: "/wizard" },
   { icon: Terminal, label: "Code Gen", href: "/code-generator" },
   { icon: FileText, label: "Templates", href: "/templates" },
-  { icon: Settings, label: "Settings", href: "#" },
+  { icon: Settings, label: "Settings", href: "#", isComingSoon: true },
 ]
 
 export function Sidebar() {
@@ -37,7 +37,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ icon: Icon, label, href }) => {
+        {NAV.map(({ icon: Icon, label, href, isComingSoon }) => {
           const active = pathname === href
           return (
             <Link
@@ -47,14 +47,21 @@ export function Sidebar() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-[13.5px]",
                 active
                   ? "bg-primary/10 text-primary font-medium border border-primary/15"
-                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface",
+                isComingSoon && "opacity-60 pointer-events-none" 
               )}
             >
               <Icon
                 className={cn("w-[18px] h-[18px] shrink-0", active && "text-primary")}
                 strokeWidth={active ? 2 : 1.75}
               />
-              {label}
+              <span className="flex-1 text-left">{label}</span>
+              {isComingSoon && (
+                <span className="ml-auto text-[10px] px-1.5 py-0.5 font-medium rounded bg-surface-container-high text-on-surface-variant border border-outline-variant/30 select-none shrink-0">
+                  Soon
+                </span>
+              )}
+              
               {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
             </Link>
           )
