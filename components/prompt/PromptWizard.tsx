@@ -1,9 +1,9 @@
 "use client"
 
-import { Button }   from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Label }    from "@/components/ui/label"
+import { Label } from "@/components/ui/label"
 import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
@@ -28,43 +28,43 @@ const PROJECT_TYPES = [
 ]
 
 const FRAMEWORKS = [
-  { value: "node-express",   label: "Node.js / Express (TypeScript)" },
-  { value: "go-gin",         label: "Go / Gin"                        },
-  { value: "python-fastapi", label: "Python / FastAPI"                },
-  { value: "spring-boot",    label: "Spring Boot (Java)"              },
-  { value: "dotnet",         label: ".NET Core (C#)"                  },
+  { value: "node-express", label: "Node.js / Express (TypeScript)" },
+  { value: "go-gin", label: "Go / Gin" },
+  { value: "python-fastapi", label: "Python / FastAPI" },
+  { value: "spring-boot", label: "Spring Boot (Java)" },
+  { value: "dotnet", label: ".NET Core (C#)" },
 ]
 
 const DATABASES = [
   { value: "postgresql", label: "PostgreSQL" },
-  { value: "mysql",      label: "MySQL"      },
-  { value: "mongodb",    label: "MongoDB"    },
-  { value: "sqlite",     label: "SQLite"     },
+  { value: "mysql", label: "MySQL" },
+  { value: "mongodb", label: "MongoDB" },
+  { value: "sqlite", label: "SQLite" },
 ]
 
 const API_STYLES = [
-  { value: "rest",    label: "RESTful API" },
-  { value: "graphql", label: "GraphQL"     },
-  { value: "grpc",    label: "gRPC"        },
+  { value: "rest", label: "RESTful API" },
+  { value: "graphql", label: "GraphQL" },
+  { value: "grpc", label: "gRPC" },
 ]
 
 type ConstraintKey = keyof Pick<
   WizardFormData,
   | "includeSqlDdl" | "repositoryPattern"
   | "unitTestBoilerplate" | "solidPrinciples"
-  | "typescriptStrict"    | "includeIndexes"
+  | "typescriptStrict" | "includeIndexes"
 >
 
 const OUTPUT_CONSTRAINTS: { key: ConstraintKey; label: string; desc: string }[] = [
-  { key: "includeSqlDdl",     label: "Include SQL DDL",      desc: "Generate CREATE TABLE statements" },
-  { key: "repositoryPattern", label: "Repository Pattern",   desc: "Abstract the data-access layer"   },
+  { key: "includeSqlDdl", label: "Include SQL DDL", desc: "Generate CREATE TABLE statements" },
+  { key: "repositoryPattern", label: "Repository Pattern", desc: "Abstract the data-access layer" },
 ]
 
 const BEHAVIOR_CONSTRAINTS: { key: ConstraintKey; label: string; desc: string }[] = [
-  { key: "unitTestBoilerplate", label: "Unit Test Boilerplate",  desc: "Jest / Vitest test scaffolding"    },
-  { key: "solidPrinciples",     label: "SOLID Principles",       desc: "Follow software design guidelines"  },
-  { key: "typescriptStrict",    label: "TypeScript Strict Mode", desc: "Enable strict type-checking"        },
-  { key: "includeIndexes",      label: "Performance Indexes",    desc: "Optimise query performance"         },
+  { key: "unitTestBoilerplate", label: "Unit Test Boilerplate", desc: "Jest / Vitest test scaffolding" },
+  { key: "solidPrinciples", label: "SOLID Principles", desc: "Follow software design guidelines" },
+  { key: "typescriptStrict", label: "TypeScript Strict Mode", desc: "Enable strict type-checking" },
+  { key: "includeIndexes", label: "Performance Indexes", desc: "Optimise query performance" },
 ]
 
 /* ── step meta ──────────────────────────────────────────────────────── */
@@ -73,9 +73,9 @@ const STEP_META: Record<
   WizardStep,
   { icon: React.ElementType; title: string; description: string }
 > = {
-  1: { icon: Server,   title: "Core Entities",         description: "Define your data models and relationships"    },
+  1: { icon: Server, title: "Core Entities", description: "Define your data models and relationships" },
   2: { icon: Database, title: "Technology Preferences", description: "Choose your framework, database and API style" },
-  3: { icon: Layers2,  title: "Constraints & Options",  description: "Select what to include in the generated prompt" },
+  3: { icon: Layers2, title: "Constraints & Options", description: "Select what to include in the generated prompt" },
 }
 
 /* ── checkbox group ─────────────────────────────────────────────────── */
@@ -83,8 +83,8 @@ const STEP_META: Record<
 function ConstraintGroup({
   title, items, formData, onChange,
 }: {
-  title:    string
-  items:    { key: ConstraintKey; label: string; desc: string }[]
+  title: string
+  items: { key: ConstraintKey; label: string; desc: string }[]
   formData: WizardFormData
   onChange: (d: Partial<WizardFormData>) => void
 }) {
@@ -249,12 +249,12 @@ function Step3({
 /* ── wizard shell ───────────────────────────────────────────────────── */
 
 export interface PromptWizardProps {
-  currentStep:  WizardStep
-  formData:     WizardFormData
+  currentStep: WizardStep
+  formData: WizardFormData
   isGenerating: boolean
   onStepChange: (s: WizardStep) => void
   onFormChange: (d: Partial<WizardFormData>) => void
-  onGenerate:   () => void
+  onGenerate: () => void
 }
 
 export function PromptWizard({

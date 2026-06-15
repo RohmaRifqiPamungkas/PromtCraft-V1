@@ -1,14 +1,24 @@
 import { Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn }    from "@/lib/utils"
 import type { WizardStep } from "@/types/prompt"
 
-const STEPS = [
-  { n: 1 as WizardStep, label: "Core Entities" },
-  { n: 2 as WizardStep, label: "Tech Prefs"    },
-  { n: 3 as WizardStep, label: "Constraints"   },
+/* ── types ──────────────────────────────────────────────────────────── */
+
+export interface ProgressStepperProps {
+  currentStep: WizardStep
+  steps?:      { n: WizardStep; label: string }[]
+}
+
+/* ── data ───────────────────────────────────────────────────────────── */
+
+const DEFAULT_STEPS: { n: WizardStep; label: string }[] = [
+  { n: 1, label: "Core Entities" },
+  { n: 2, label: "Tech Prefs"    },
+  { n: 3, label: "Constraints"   },
 ]
 
-/* Connector line between two circles */
+/* ── Connector ──────────────────────────────────────────────────────── */
+
 function Connector({ active }: { active: boolean }) {
   return (
     /* pt-3 aligns the line with the center of the h-6 (24px) circles */
@@ -23,12 +33,14 @@ function Connector({ active }: { active: boolean }) {
   )
 }
 
-export function ProgressStepper({ currentStep }: { currentStep: WizardStep }) {
+/* ── ProgressStepper ────────────────────────────────────────────────── */
+
+export function ProgressStepper({ currentStep, steps = DEFAULT_STEPS }: ProgressStepperProps) {
   return (
     <div className="flex items-start gap-0 w-full max-w-xs mx-auto">
-      {STEPS.map((step, idx) => {
-        const done    = step.n < currentStep
-        const active  = step.n === currentStep
+      {steps.map((step, idx) => {
+        const done   = step.n < currentStep
+        const active = step.n === currentStep
 
         return (
           <div key={step.n} className="flex items-start gap-0">
@@ -57,7 +69,7 @@ export function ProgressStepper({ currentStep }: { currentStep: WizardStep }) {
             </div>
 
             {/* Connector — rendered after circle, not after last step */}
-            {idx < STEPS.length - 1 && (
+            {idx < steps.length - 1 && (
               <Connector active={step.n < currentStep} />
             )}
           </div>
