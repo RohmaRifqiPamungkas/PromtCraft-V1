@@ -13,7 +13,7 @@ const NAV = [
   { icon: GitBranch,       label: "Business Flow", href: "#" },
   { icon: DatabaseZap,     label: "Architecture",  href: "#" },
   { icon: Layers,          label: "DB & API",      href: "/wizard" },
-  { icon: Terminal,        label: "Code Gen",       href: "#" },
+  { icon: Terminal,        label: "Code Gen",       href: "/code-generator" },
   { icon: FileText,        label: "Templates",      href: "#" },
   { icon: Settings,        label: "Settings",       href: "#" },
 ]

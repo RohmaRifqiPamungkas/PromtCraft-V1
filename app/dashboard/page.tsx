@@ -9,13 +9,13 @@ import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { cn } from "@/lib/utils"
 import type { PromptHistoryItem } from "@/types/prompt"
 
-export const metadata: Metadata = { title: "Dashboard — PromptCraft AI" }
+export const metadata: Metadata = { title: "Dashboard | PromptCraft AI" }
 
 /* ── data ────────────────────────────────────────────────────────── */
 
 async function fetchData() {
   try {
-    const db   = getSupabaseServerClient()
+    const db = getSupabaseServerClient()
     const today = new Date(); today.setHours(0, 0, 0, 0)
     const [totRes, enhRes, todRes, recRes] = await Promise.all([
       db.from("prompt_history").select("id", { count: "exact", head: true }),
@@ -24,10 +24,10 @@ async function fetchData() {
       db.from("prompt_history").select("id,original_prompt,enhanced_prompt,created_at").order("created_at", { ascending: false }).limit(5),
     ])
     return {
-      total:    totRes.count ?? 0,
+      total: totRes.count ?? 0,
       enhanced: enhRes.count ?? 0,
-      today:    todRes.count ?? 0,
-      recent:   (recRes.data ?? []) as PromptHistoryItem[],
+      today: todRes.count ?? 0,
+      recent: (recRes.data ?? []) as PromptHistoryItem[],
     }
   } catch {
     return { total: 0, enhanced: 0, today: 0, recent: [] as PromptHistoryItem[] }
@@ -133,9 +133,9 @@ export default async function DashboardPage() {
 
           {/* Stats row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard icon={FileCode2} label="Total Prompts" value={total}    accent />
-            <StatCard icon={Sparkles}  label="AI Enhanced"  value={enhanced} />
-            <StatCard icon={Clock}     label="Today"        value={today}    />
+            <StatCard icon={FileCode2} label="Total Prompts" value={total} accent />
+            <StatCard icon={Sparkles} label="AI Enhanced" value={enhanced} />
+            <StatCard icon={Clock} label="Today" value={today} />
           </div>
 
           {/* Content grid */}
@@ -191,9 +191,9 @@ export default async function DashboardPage() {
             <div className="lg:col-span-2 space-y-3">
               <h2 className="text-sm font-semibold text-on-surface">Quick Actions</h2>
               <div className="space-y-2.5">
-                <ActionCard icon={Layers}   title="DB & API Wizard"  desc="Generate backend architecture prompts"  href="/"  />
-                <ActionCard icon={Terminal} title="Code Generator"   desc="Generate boilerplate code snippets"     href="#"  soon />
-                <ActionCard icon={FileText} title="Templates"        desc="Browse ready-made prompt templates"     href="#"  soon />
+                <ActionCard icon={Layers} title="DB & API Wizard" desc="Generate backend architecture prompts" href="/" />
+                <ActionCard icon={Terminal} title="Code Generator" desc="Generate boilerplate code snippets" href="#" soon />
+                <ActionCard icon={FileText} title="Templates" desc="Browse ready-made prompt templates" href="#" soon />
               </div>
             </div>
 
