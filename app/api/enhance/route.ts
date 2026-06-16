@@ -1,8 +1,15 @@
 import type { NextRequest } from "next/server"
 import { enhancePrompt } from "@/lib/gemini"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { getSupabaseAuthClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest): Promise<Response> {
+  const supabase = await getSupabaseAuthClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return Response.json({ success: false, error: "Unauthorized" }, { status: 401 })
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -32,8 +39,8 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   try {
-    const supabase = getSupabaseServerClient()
     await supabase.from("prompt_history").insert({
+      user_id: user.id,
       original_prompt: originalPrompt,
       enhanced_prompt: enhancedText,
     })
