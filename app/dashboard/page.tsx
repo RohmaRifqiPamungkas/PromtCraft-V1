@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import {
   Layers, Terminal, FileText, FileCode2,
   Sparkles, Clock, ArrowRight, BarChart3,
 } from "lucide-react"
 import { Sidebar } from "@/components/layout/Sidebar"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { getSupabaseAuthClient } from "@/lib/supabase/server"
 import { cn } from "@/lib/utils"
 import type { PromptHistoryItem } from "@/types/prompt"
 
@@ -13,15 +14,15 @@ export const metadata: Metadata = { title: "Dashboard | PromptCraft AI" }
 
 /* ── data ────────────────────────────────────────────────────────── */
 
-async function fetchData() {
+async function fetchData(userId: string) {
   try {
-    const db = getSupabaseServerClient()
+    const db = await getSupabaseAuthClient()
     const today = new Date(); today.setHours(0, 0, 0, 0)
     const [totRes, enhRes, todRes, recRes] = await Promise.all([
-      db.from("prompt_history").select("id", { count: "exact", head: true }),
-      db.from("prompt_history").select("id", { count: "exact", head: true }).not("enhanced_prompt", "is", null),
-      db.from("prompt_history").select("id", { count: "exact", head: true }).gte("created_at", today.toISOString()),
-      db.from("prompt_history").select("id,original_prompt,enhanced_prompt,created_at").order("created_at", { ascending: false }).limit(5),
+      db.from("prompt_history").select("id", { count: "exact", head: true }).eq("user_id", userId),
+      db.from("prompt_history").select("id", { count: "exact", head: true }).eq("user_id", userId).not("enhanced_prompt", "is", null),
+      db.from("prompt_history").select("id", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", today.toISOString()),
+      db.from("prompt_history").select("id,original_prompt,enhanced_prompt,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
     ])
     return {
       total: totRes.count ?? 0,
@@ -101,11 +102,21 @@ function ActionCard({ icon: Icon, title, desc, href, soon = false }: {
 /* ── page ─────────────────────────────────────────────────────────── */
 
 export default async function DashboardPage() {
-  const { total, enhanced, today, recent } = await fetchData()
+  const supabase = await getSupabaseAuthClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) redirect("/login")
+
+  const [{ total, enhanced, today, recent }, profileRes] = await Promise.all([
+    fetchData(user.id),
+    supabase.from("profiles").select("full_name, email").eq("id", user.id).single(),
+  ])
+
+  const profile = profileRes.data
 
   return (
     <div className="bg-background text-on-surface h-screen flex overflow-hidden">
-      <Sidebar />
+      <Sidebar user={{ email: profile?.email ?? user.email ?? "", fullName: profile?.full_name }} />
 
       <main className="md:ml-[280px] flex-1 flex flex-col h-full bg-surface-dim overflow-hidden">
 
@@ -123,7 +134,7 @@ export default async function DashboardPage() {
               <p className="text-sm text-on-surface-variant mt-0.5">Overview of your prompt crafting activity</p>
             </div>
             <Link
-              href="/"
+              href="/wizard"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-sm font-medium hover:bg-primary hover:text-on-primary transition-all duration-150"
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -145,7 +156,7 @@ export default async function DashboardPage() {
             <div className="lg:col-span-3 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-on-surface">Recent Prompts</h2>
-                <Link href="/" className="text-xs text-primary/70 hover:text-primary transition-colors">
+                <Link href="/wizard" className="text-xs text-primary/70 hover:text-primary transition-colors">
                   View all →
                 </Link>
               </div>
@@ -191,7 +202,7 @@ export default async function DashboardPage() {
             <div className="lg:col-span-2 space-y-3">
               <h2 className="text-sm font-semibold text-on-surface">Quick Actions</h2>
               <div className="space-y-2.5">
-                <ActionCard icon={Layers} title="DB & API Wizard" desc="Generate backend architecture prompts" href="/" />
+                <ActionCard icon={Layers} title="DB & API Wizard" desc="Generate backend architecture prompts" href="/wizard" />
                 <ActionCard icon={Terminal} title="Code Generator" desc="Generate boilerplate code snippets" href="#" soon />
                 <ActionCard icon={FileText} title="Templates" desc="Browse ready-made prompt templates" href="/templates" />
               </div>
