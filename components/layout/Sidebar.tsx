@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   LayoutDashboard, Network,
-  Layers, Wand2, FileText, History, LifeBuoy, LogOut,
+  Layers, Wand2, FileText, History, LifeBuoy, LogOut, Menu, X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
@@ -33,6 +33,9 @@ export function Sidebar({ user: userProp }: SidebarProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const [info, setInfo] = useState<UserInfo>({ email: userProp?.email ?? "", fullName: userProp?.fullName })
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
     if (userProp?.email) return
@@ -66,17 +69,49 @@ export function Sidebar({ user: userProp }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden md:flex flex-col bg-surface-container fixed inset-y-0 left-0 w-[280px] border-r border-outline-variant z-20">
+    <>
+      {/* Mobile hamburger — sits in the top-right of the mobile header */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
+        className="fixed top-0 right-0 z-20 md:hidden h-16 w-16 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Backdrop */}
+      <div
+        onClick={() => setMobileOpen(false)}
+        className={cn(
+          "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300",
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+      />
+
+      <aside className={cn(
+        "flex flex-col bg-surface-container fixed inset-y-0 left-0 w-[280px] border-r border-outline-variant z-50",
+        "transition-transform duration-300 ease-in-out",
+        "md:translate-x-0",
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
 
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-outline-variant/50">
         <div className="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center font-bold text-sm text-on-primary-container select-none shrink-0">
           P
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="text-[16px] font-bold text-on-surface leading-tight">PromptCraft AI</h1>
           <span className="text-[10px] font-mono tracking-widest text-on-surface-variant/60">v1.0.4-beta</span>
         </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
+          className="md:hidden w-8 h-8 flex items-center justify-center rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all shrink-0"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -141,6 +176,7 @@ export function Sidebar({ user: userProp }: SidebarProps) {
         </div>
       </div>
 
-    </aside>
+      </aside>
+    </>
   )
 }
