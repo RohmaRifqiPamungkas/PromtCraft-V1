@@ -10,9 +10,9 @@ import { Sidebar } from "@/components/layout/Sidebar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { MarkdownVisualizer } from "@/components/prompt/MarkdownVisualizer"
-import { ProgressStepper } from "@/components/prompt/ProgressStepper"
-import { PromptHistory } from "@/components/prompt/PromptHistory"
+import { MarkdownVisualizer } from "@/components/shared/MarkdownVisualizer"
+import { ProgressStepper } from "@/components/shared/ProgressStepper"
+import { PromptHistory } from "@/components/shared/PromptHistory"
 import { ToastNotification } from "@/components/ui/toast-notification"
 import {
   Select, SelectContent, SelectItem,
