@@ -20,7 +20,7 @@ export default function RegisterPage() {
   const [error, setError]                 = useState<string | null>(null)
   const [emailSent, setEmailSent]         = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
@@ -43,7 +43,16 @@ export default function RegisterPage() {
     })
 
     if (authError) {
-      setError(authError.message)
+      const msg = authError.message.toLowerCase()
+      if (msg.includes("rate limit") || msg.includes("email rate")) {
+        setError(
+          "Too many sign-up attempts. Please wait a few minutes before trying again, or contact the administrator to configure a custom SMTP provider."
+        )
+      } else if (msg.includes("already registered") || msg.includes("user already exists")) {
+        setError("An account with this email already exists. Try signing in instead.")
+      } else {
+        setError(authError.message)
+      }
       setLoading(false)
       return
     }
