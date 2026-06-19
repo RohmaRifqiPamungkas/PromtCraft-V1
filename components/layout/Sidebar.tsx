@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   LayoutDashboard, GitBranch, DatabaseZap,
-  Layers, Terminal, FileText, Settings, LifeBuoy, LogOut,
+  Layers, Terminal, Wand2, FileText, Settings, LifeBuoy, LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
@@ -15,8 +15,9 @@ const NAV = [
   { icon: GitBranch, label: "Business Flow", href: "#", isComingSoon: true },
   { icon: DatabaseZap, label: "Architecture", href: "#", isComingSoon: true },
   { icon: Layers, label: "DB & API", href: "/wizard" },
-  { icon: Terminal, label: "Code Gen", href: "/code-generator" },
-  { icon: FileText, label: "Templates", href: "/templates" },
+  { icon: Terminal, label: "Code Gen",   href: "/code-generator" },
+  { icon: Wand2,    label: "Prompt Gen", href: "/prompt-generator" },
+  { icon: FileText, label: "Templates",  href: "/templates" },
   { icon: Settings, label: "Settings", href: "#", isComingSoon: true },
 ]
 
