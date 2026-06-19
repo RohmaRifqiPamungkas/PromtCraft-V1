@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { TemplatesClient } from "./TemplatesClient"
+import { TemplatesClient } from "./_components/TemplatesClient"
 
 export const metadata: Metadata = { title: "Templates | PromptCraft AI" }
 
