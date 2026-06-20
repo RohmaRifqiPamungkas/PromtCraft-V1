@@ -12,8 +12,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 const NAV = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: GitBranch, label: "Business Flow", href: "#", isComingSoon: true },
-  { icon: DatabaseZap, label: "Architecture", href: "#", isComingSoon: true },
+  { icon: GitBranch, label: "Business Flow", href: "/business-flow" },
+  { icon: DatabaseZap, label: "Architecture", href: "/architecture" },
   { icon: Layers, label: "DB & API", href: "/wizard" },
   { icon: Terminal, label: "Code Gen",   href: "/code-generator" },
   { icon: Wand2,    label: "Prompt Gen", href: "/prompt-generator" },
