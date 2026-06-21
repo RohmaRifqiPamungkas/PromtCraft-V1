@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server"
 import { getSupabaseAuthClient } from "@/lib/supabase/server"
 import type { PromptHistoryItem } from "@/types/prompt"
 
-export async function GET(): Promise<Response> {
+export async function GET(request: NextRequest): Promise<Response> {
   const supabase = await getSupabaseAuthClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -10,12 +10,15 @@ export async function GET(): Promise<Response> {
     return Response.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 
+  const limitParam = request.nextUrl.searchParams.get("limit")
+  const limit = Math.min(Math.max(parseInt(limitParam ?? "50", 10), 1), 100)
+
   const { data, error } = await supabase
     .from("prompt_history")
     .select("id, original_prompt, enhanced_prompt, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(20)
+    .limit(limit)
 
   if (error) {
     return Response.json({ success: false, error: error.message }, { status: 500 })
