@@ -27,7 +27,9 @@ export default function RootLayout({
       lang="en"
       className={`dark ${geistSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="h-screen overflow-hidden antialiased">{children}</body>
+      <body className="h-screen overflow-hidden antialiased">
+        {children}
+      </body>
     </html>
   )
 }

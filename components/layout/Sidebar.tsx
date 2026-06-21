@@ -4,21 +4,19 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
-  LayoutDashboard, GitBranch, DatabaseZap,
-  Layers, Terminal, Wand2, FileText, Settings, LifeBuoy, LogOut,
+  LayoutDashboard, Network,
+  Layers, Wand2, FileText, History, LifeBuoy, LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: GitBranch, label: "Business Flow", href: "/business-flow" },
-  { icon: DatabaseZap, label: "Architecture", href: "/architecture" },
-  { icon: Layers, label: "DB & API", href: "/wizard" },
-  { icon: Terminal, label: "Code Gen",   href: "/code-generator" },
-  { icon: Wand2,    label: "Prompt Gen", href: "/prompt-generator" },
-  { icon: FileText, label: "Templates",  href: "/templates" },
-  { icon: Settings, label: "Settings", href: "#", isComingSoon: true },
+  { icon: LayoutDashboard, label: "Dashboard",     href: "/dashboard" },
+  { icon: Network,         label: "System Design", href: "/system-design" },
+  { icon: Layers,          label: "DB & API",      href: "/wizard" },
+  { icon: Wand2,           label: "Prompt Gen",    href: "/prompt-generator" },
+  { icon: FileText,        label: "Templates",     href: "/templates" },
+  { icon: History,         label: "History",       href: "/history" },
 ]
 
 interface UserInfo {
@@ -83,7 +81,7 @@ export function Sidebar({ user: userProp }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ icon: Icon, label, href, isComingSoon }) => {
+        {NAV.map(({ icon: Icon, label, href }) => {
           const active = pathname === href
           return (
             <Link
@@ -93,8 +91,7 @@ export function Sidebar({ user: userProp }: SidebarProps) {
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-[13.5px]",
                 active
                   ? "bg-primary/10 text-primary font-medium border border-primary/15"
-                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface",
-                isComingSoon && "opacity-60 pointer-events-none"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
               )}
             >
               <Icon
@@ -102,11 +99,6 @@ export function Sidebar({ user: userProp }: SidebarProps) {
                 strokeWidth={active ? 2 : 1.75}
               />
               <span className="flex-1 text-left">{label}</span>
-              {isComingSoon && (
-                <span className="ml-auto text-[10px] px-1.5 py-0.5 font-medium rounded bg-surface-container-high text-on-surface-variant border border-outline-variant/30 select-none shrink-0">
-                  Soon
-                </span>
-              )}
               {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
             </Link>
           )
