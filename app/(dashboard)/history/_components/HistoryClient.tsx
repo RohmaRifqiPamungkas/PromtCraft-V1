@@ -10,6 +10,7 @@ import { Sidebar } from "@/components/layout/Sidebar"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { PromptHistoryItem } from "@/types/prompt"
+import { useLanguage } from "@/lib/i18n/context"
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
@@ -20,29 +21,34 @@ function formatTime(iso: string): string {
   }).format(new Date(iso))
 }
 
-function dateGroup(iso: string): string {
+const GROUP_KEYS = ["Today", "Yesterday", "This Week", "Older"] as const
+type GroupKey = typeof GROUP_KEYS[number]
+
+function dateGroup(iso: string): GroupKey {
   const d        = new Date(iso)
   const today    = new Date(); today.setHours(0, 0, 0, 0)
   const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1)
   const lastWeek  = new Date(today); lastWeek.setDate(lastWeek.getDate() - 7)
 
-  if (d >= today)    return "Today"
+  if (d >= today)     return "Today"
   if (d >= yesterday) return "Yesterday"
   if (d >= lastWeek)  return "This Week"
   return "Older"
 }
 
-function groupItems(items: PromptHistoryItem[]): { label: string; items: PromptHistoryItem[] }[] {
-  const order = ["Today", "Yesterday", "This Week", "Older"]
-  const map: Record<string, PromptHistoryItem[]> = {
+function groupItems(
+  items: PromptHistoryItem[],
+  labels: Record<GroupKey, string>,
+): { label: string; items: PromptHistoryItem[] }[] {
+  const map: Record<GroupKey, PromptHistoryItem[]> = {
     "Today": [], "Yesterday": [], "This Week": [], "Older": [],
   }
   for (const item of items) {
     map[dateGroup(item.created_at)].push(item)
   }
-  return order
+  return GROUP_KEYS
     .filter((g) => map[g].length > 0)
-    .map((g) => ({ label: g, items: map[g] }))
+    .map((g) => ({ label: labels[g], items: map[g] }))
 }
 
 function previewText(item: PromptHistoryItem, maxLen = 300): string {
@@ -59,9 +65,10 @@ interface CardProps {
   onCopy: (item: PromptHistoryItem) => void
   onDownload: (item: PromptHistoryItem) => void
   onDelete: (id: string) => void
+  tr: ReturnType<typeof useLanguage>["t"]["history"]
 }
 
-function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete }: CardProps) {
+function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete, tr }: CardProps) {
   return (
     <div className="rounded-xl border border-outline-variant bg-surface-container p-4 space-y-3 hover:border-outline hover:bg-surface-container-high transition-all duration-150">
 
@@ -71,11 +78,11 @@ function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete 
           {item.enhanced_prompt ? (
             <span className="flex items-center gap-1 text-[9px] font-mono font-semibold tracking-widest uppercase text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
               <Sparkles className="w-2.5 h-2.5" />
-              AI Enhanced
+              {tr.aiEnhancedBadge}
             </span>
           ) : (
             <span className="text-[9px] font-mono font-semibold tracking-widest uppercase text-on-surface-variant/40 bg-surface-container-high border border-outline-variant/50 px-1.5 py-0.5 rounded">
-              Compiled
+              {tr.compiledBadge}
             </span>
           )}
         </div>
@@ -101,8 +108,8 @@ function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete 
           )}
         >
           {isCopied
-            ? <><Check className="w-3 h-3" />Copied!</>
-            : <><Copy className="w-3 h-3" />Copy</>
+            ? <><Check className="w-3 h-3" />{tr.copied}</>
+            : <><Copy className="w-3 h-3" />{tr.copy}</>
           }
         </Button>
 
@@ -113,7 +120,7 @@ function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete 
           className="h-7 px-2.5 text-[11px] gap-1.5"
         >
           <Download className="w-3 h-3" />
-          Save .md
+          {tr.saveMd}
         </Button>
 
         <div className="flex-1" />
@@ -139,6 +146,16 @@ function HistoryCard({ item, isDeleting, isCopied, onCopy, onDownload, onDelete 
 /* ── main client ─────────────────────────────────────────────────────── */
 
 export function HistoryClient() {
+  const { t } = useLanguage()
+  const tr = t.history
+
+  const groupLabels: Record<GroupKey, string> = {
+    "Today":     tr.groupToday,
+    "Yesterday": tr.groupYesterday,
+    "This Week": tr.groupThisWeek,
+    "Older":     tr.groupOlder,
+  }
+
   const [items,      setItems]      = useState<PromptHistoryItem[]>([])
   const [loading,    setLoading]    = useState(true)
   const [error,      setError]      = useState<string | null>(null)
@@ -199,7 +216,7 @@ export function HistoryClient() {
     URL.revokeObjectURL(url)
   }
 
-  const groups = groupItems(items)
+  const groups = groupItems(items, groupLabels)
 
   return (
     <div className="bg-background text-on-surface h-screen flex overflow-hidden">
@@ -219,17 +236,15 @@ export function HistoryClient() {
               <div>
                 <h1 className="text-2xl font-bold text-on-surface tracking-tight flex items-center gap-2.5">
                   <History className="w-6 h-6 text-primary/70" strokeWidth={1.75} />
-                  Prompt History
+                  {tr.title}
                 </h1>
-                <p className="text-sm text-on-surface-variant mt-1">
-                  All prompts saved when you used Enhance. Copy, download, or delete entries below.
-                </p>
+                <p className="text-sm text-on-surface-variant mt-1">{tr.subtitle}</p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
                 {items.length > 0 && (
                   <span className="text-[11px] font-mono text-on-surface-variant/60 bg-surface-container border border-outline-variant px-2 py-1 rounded-lg">
-                    {items.length} saved
+                    {items.length} {tr.savedLabel}
                   </span>
                 )}
                 <Button
@@ -240,7 +255,7 @@ export function HistoryClient() {
                   className="h-8 px-3 gap-1.5 text-xs"
                 >
                   <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
-                  <span className="hidden sm:inline">Refresh</span>
+                  <span className="hidden sm:inline">{tr.refresh}</span>
                 </Button>
               </div>
             </div>
@@ -249,7 +264,7 @@ export function HistoryClient() {
             {loading && (
               <div className="flex items-center justify-center py-20 gap-2.5 text-on-surface-variant/50">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Loading history…</span>
+                <span className="text-sm">{tr.loading}</span>
               </div>
             )}
 
@@ -267,16 +282,16 @@ export function HistoryClient() {
                   <Clock className="w-6 h-6 text-on-surface-variant/30" />
                 </div>
                 <div className="text-center space-y-1.5">
-                  <p className="text-sm font-medium text-on-surface-variant/60">No history yet</p>
+                  <p className="text-sm font-medium text-on-surface-variant/60">{tr.noHistoryYet}</p>
                   <p className="text-xs text-on-surface-variant/40 max-w-[240px] leading-relaxed">
-                    Prompts are saved here when you click Enhance. Try generating and enhancing a prompt first.
+                    {tr.noHistoryDesc}
                   </p>
                 </div>
                 <Link
                   href="/prompt-generator"
                   className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors font-medium"
                 >
-                  Go to Prompt Builder
+                  {tr.goToBuilder}
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -307,6 +322,7 @@ export function HistoryClient() {
                           onCopy={handleCopy}
                           onDownload={handleDownload}
                           onDelete={handleDelete}
+                          tr={tr}
                         />
                       ))}
                     </div>
