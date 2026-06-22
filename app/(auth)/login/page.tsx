@@ -9,16 +9,16 @@ import {
   ArrowRight, Eye, EyeOff,
 } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { useLanguage } from "@/lib/i18n/context"
+import { LanguageToggle } from "@/components/shared/LanguageToggle"
 
-const sideFeatures = [
-  { icon: Zap,      text: "Generate prompt berkualitas tinggi dalam hitungan detik." },
-  { icon: Target,   text: "Output AI lebih akurat dengan konteks yang terstruktur." },
-  { icon: BookOpen, text: "Histori & dokumentasi tersimpan otomatis setiap sesi." },
-  { icon: Network,  text: "Dari arsitektur hingga kode — semua dalam satu flow." },
-]
+const SIDE_ICONS = [Zap, Target, BookOpen, Network]
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useLanguage()
+  const a = t.auth
+
   const [email, setEmail]       = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShow] = useState(false)
@@ -80,10 +80,10 @@ export default function LoginPage() {
         <div className="relative z-10 space-y-8">
           <div className="space-y-4">
             <span className="inline-block text-[10px] font-mono uppercase tracking-widest text-primary/60 border border-primary/20 bg-primary/5 px-3 py-1.5 rounded-full">
-              AI Prompt Platform
+              {a.loginBadge}
             </span>
             <h2 className="text-3xl xl:text-4xl font-bold text-on-surface leading-tight">
-              Craft prompts.{" "}
+              {a.loginHeadline1}{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #4edea3, #c0c1ff)",
@@ -91,23 +91,26 @@ export default function LoginPage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                Build faster.
+                {a.loginHeadline2}
               </span>
             </h2>
             <p className="text-[13px] text-on-surface-variant leading-relaxed max-w-[300px]">
-              Satu platform untuk perancangan sistem, analisis kode, dan generate prompt berkualitas tinggi.
+              {a.loginDesc}
             </p>
           </div>
 
           <ul className="space-y-4">
-            {sideFeatures.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
-                </div>
-                <span className="text-[12.5px] text-on-surface-variant leading-snug pt-0.5">{text}</span>
-              </li>
-            ))}
+            {a.loginSideFeatures.map((text, i) => {
+              const Icon = SIDE_ICONS[i]
+              return (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Icon className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-[12.5px] text-on-surface-variant leading-snug pt-0.5">{text}</span>
+                </li>
+              )
+            })}
           </ul>
         </div>
 
@@ -136,10 +139,15 @@ export default function LoginPage() {
             <span className="font-bold text-on-surface">PromptCraft AI</span>
           </Link>
 
+          {/* Language toggle — top-right of form panel */}
+          <div className="flex justify-end">
+            <LanguageToggle />
+          </div>
+
           {/* Header */}
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-on-surface">Welcome back</h1>
-            <p className="text-[13px] text-on-surface-variant">Sign in to continue building.</p>
+            <h1 className="text-2xl font-bold text-on-surface">{a.loginWelcome}</h1>
+            <p className="text-[13px] text-on-surface-variant">{a.loginSubtitle}</p>
           </div>
 
           {/* Form */}
@@ -158,7 +166,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Email
+                {a.emailLabel}
               </label>
               <div className="relative group">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/35 group-focus-within:text-primary/60 transition-colors duration-150 pointer-events-none" />
@@ -181,7 +189,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Password
+                {a.passwordLabel}
               </label>
               <div className="relative group">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/35 group-focus-within:text-primary/60 transition-colors duration-150 pointer-events-none" />
@@ -197,7 +205,7 @@ export default function LoginPage() {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? a.hidePassword : a.showPassword}
                   onClick={() => setShow((v) => !v)}
                   tabIndex={-1}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/35 hover:text-on-surface-variant transition-colors"
@@ -216,11 +224,11 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing in…
+                  {a.signingIn}
                 </>
               ) : (
                 <>
-                  Sign in
+                  {a.signIn}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -228,12 +236,12 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-[13px] text-on-surface-variant">
-            Don&apos;t have an account?{" "}
+            {a.noAccount}{" "}
             <Link
               href="/register"
               className="text-primary hover:text-primary/80 font-semibold transition-colors"
             >
-              Create one →
+              {a.createOne}
             </Link>
           </p>
         </div>

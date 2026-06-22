@@ -5,29 +5,23 @@ import Link from "next/link"
 import {
   Mail, Lock, User, Loader2,
   AlertCircle, CheckCircle2, Eye, EyeOff,
-  ArrowRight, Zap, BookOpen, Check, Sparkles,
+  ArrowRight, Zap, Check, Sparkles,
 } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { useLanguage } from "@/lib/i18n/context"
+import { LanguageToggle } from "@/components/shared/LanguageToggle"
 
-const sidePerks = [
-  { text: "Free to use, tidak perlu kartu kredit." },
-  { text: "Wizard terstruktur untuk prompt berkualitas." },
-  { text: "Business flow & architecture tools siap pakai." },
-  { text: "Histori & dokumentasi otomatis setiap sesi." },
-]
-
-function passwordStrength(pw: string): { score: number; label: string } {
+function passwordStrength(pw: string): { score: number } {
   let score = 0
   if (pw.length >= 6)           score++
   if (pw.length >= 10)          score++
   if (/[A-Z]/.test(pw))        score++
   if (/[0-9]/.test(pw))        score++
   if (/[^A-Za-z0-9]/.test(pw)) score++
-  const labels = ["", "Weak", "Fair", "Good", "Strong", "Very Strong"]
-  return { score, label: labels[score] ?? "" }
+  return { score }
 }
 
-function StrengthBar({ score }: { score: number }) {
+function StrengthBar({ score, labels }: { score: number; labels: string[] }) {
   const segColor =
     score <= 1 ? "bg-error/70"
     : score <= 3 ? "bg-yellow-400/80"
@@ -36,8 +30,6 @@ function StrengthBar({ score }: { score: number }) {
     score <= 1 ? "text-error/70"
     : score <= 3 ? "text-yellow-400/80"
     : "text-primary"
-  const { label } = passwordStrength("") // only for label lookup
-  const labels = ["", "Weak", "Fair", "Good", "Strong", "Very Strong"]
 
   return (
     <div className="space-y-1.5 pt-1">
@@ -59,6 +51,9 @@ function StrengthBar({ score }: { score: number }) {
 }
 
 export default function RegisterPage() {
+  const { t } = useLanguage()
+  const a = t.auth
+
   const [fullName, setFullName]         = useState("")
   const [email, setEmail]               = useState("")
   const [password, setPassword]         = useState("")
@@ -77,7 +72,7 @@ export default function RegisterPage() {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.")
+      setError(a.passwordsMismatch)
       return
     }
 
@@ -97,11 +92,9 @@ export default function RegisterPage() {
     if (authError) {
       const msg = authError.message.toLowerCase()
       if (msg.includes("rate limit") || msg.includes("email rate")) {
-        setError(
-          "Too many sign-up attempts. Please wait a few minutes before trying again, or contact the administrator to configure a custom SMTP provider."
-        )
+        setError(a.errorRateLimit)
       } else if (msg.includes("already registered") || msg.includes("user already exists")) {
-        setError("An account with this email already exists. Try signing in instead.")
+        setError(a.errorAlreadyExists)
       } else {
         setError(authError.message)
       }
@@ -150,28 +143,25 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-on-surface">Check your email</h2>
+              <h2 className="text-xl font-bold text-on-surface">{a.successTitle}</h2>
               <p className="text-[13px] text-on-surface-variant leading-relaxed">
-                We sent a confirmation link to{" "}
-                <span className="text-on-surface font-semibold">{email}</span>.
-                Click it to activate your account.
+                {a.successSentTo}{" "}
+                <span className="text-on-surface font-semibold">{email}</span>.{" "}
+                {a.successActivate}
               </p>
             </div>
 
             {/* Account summary */}
             <div className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-left space-y-1.5">
               <p className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40">
-                Account created
+                {a.accountCreated}
               </p>
               <p className="text-[14px] font-semibold text-on-surface">{fullName}</p>
               <p className="text-[12px] text-on-surface-variant/70">{email}</p>
             </div>
 
             <div className="space-y-2.5">
-              {[
-                "Check your spam folder if you don't see it",
-                "The link expires in 24 hours",
-              ].map((tip) => (
+              {[a.checkSpam, a.linkExpires].map((tip) => (
                 <div key={tip} className="flex items-start gap-2 text-left">
                   <Sparkles className="w-3.5 h-3.5 text-primary/50 shrink-0 mt-0.5" strokeWidth={1.75} />
                   <span className="text-[11.5px] text-on-surface-variant/60 leading-snug">{tip}</span>
@@ -182,7 +172,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-[13px] text-on-surface-variant">
             <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
-              ← Back to sign in
+              {a.backToSignIn}
             </Link>
           </p>
         </div>
@@ -225,10 +215,10 @@ export default function RegisterPage() {
         <div className="relative z-10 space-y-8">
           <div className="space-y-4">
             <span className="inline-block text-[10px] font-mono uppercase tracking-widest text-secondary/60 border border-secondary/20 bg-secondary/5 px-3 py-1.5 rounded-full">
-              Join for Free
+              {a.registerBadge}
             </span>
             <h2 className="text-3xl xl:text-4xl font-bold text-on-surface leading-tight">
-              Start building.{" "}
+              {a.registerHeadline1}{" "}
               <span
                 style={{
                   background: "linear-gradient(135deg, #c0c1ff, #4edea3)",
@@ -236,17 +226,17 @@ export default function RegisterPage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                No limits.
+                {a.registerHeadline2}
               </span>
             </h2>
             <p className="text-[13px] text-on-surface-variant leading-relaxed max-w-[300px]">
-              Buat akun gratis dan mulai menghasilkan prompt, arsitektur, dan business flow dalam hitungan menit.
+              {a.registerDesc}
             </p>
           </div>
 
           <ul className="space-y-3.5">
-            {sidePerks.map(({ text }) => (
-              <li key={text} className="flex items-start gap-3">
+            {a.registerSidePerks.map((text, i) => (
+              <li key={i} className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="w-2.5 h-2.5 text-primary" strokeWidth={2.5} />
                 </div>
@@ -259,8 +249,8 @@ export default function RegisterPage() {
           <div className="flex items-center gap-3 p-3.5 rounded-xl border border-outline-variant/50 bg-surface-container/60 w-fit">
             <Zap className="w-4 h-4 text-primary shrink-0" strokeWidth={1.75} />
             <div>
-              <p className="text-[11px] font-semibold text-on-surface">Instant access</p>
-              <p className="text-[10px] text-on-surface-variant/50">No credit card required</p>
+              <p className="text-[11px] font-semibold text-on-surface">{t.hero.instantAccess}</p>
+              <p className="text-[10px] text-on-surface-variant/50">{t.hero.noCreditCard}</p>
             </div>
           </div>
         </div>
@@ -290,10 +280,15 @@ export default function RegisterPage() {
             <span className="font-bold text-on-surface">PromptCraft AI</span>
           </Link>
 
+          {/* Language toggle */}
+          <div className="flex justify-end">
+            <LanguageToggle />
+          </div>
+
           {/* Header */}
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-on-surface">Create your account</h1>
-            <p className="text-[13px] text-on-surface-variant">Free forever. No card needed.</p>
+            <h1 className="text-2xl font-bold text-on-surface">{a.createAccount}</h1>
+            <p className="text-[13px] text-on-surface-variant">{a.joinSubtitle}</p>
           </div>
 
           {/* Form */}
@@ -312,7 +307,7 @@ export default function RegisterPage() {
                 htmlFor="fullName"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Full Name
+                {a.fullNameLabel}
               </label>
               <div className="relative group">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/35 group-focus-within:text-primary/60 transition-colors duration-150 pointer-events-none" />
@@ -335,7 +330,7 @@ export default function RegisterPage() {
                 htmlFor="email"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Email
+                {a.emailLabel}
               </label>
               <div className="relative group">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/35 group-focus-within:text-primary/60 transition-colors duration-150 pointer-events-none" />
@@ -358,7 +353,7 @@ export default function RegisterPage() {
                 htmlFor="password"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Password
+                {a.passwordLabel}
               </label>
               <div className="relative group">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/35 group-focus-within:text-primary/60 transition-colors duration-150 pointer-events-none" />
@@ -375,7 +370,7 @@ export default function RegisterPage() {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? a.hidePassword : a.showPassword}
                   onClick={() => setShowPassword((v) => !v)}
                   tabIndex={-1}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/35 hover:text-on-surface-variant transition-colors"
@@ -383,7 +378,7 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {password && <StrengthBar score={pwScore} />}
+              {password && <StrengthBar score={pwScore} labels={a.pwLabels} />}
             </div>
 
             {/* Confirm Password */}
@@ -392,7 +387,7 @@ export default function RegisterPage() {
                 htmlFor="confirm"
                 className="text-[11px] font-semibold text-on-surface-variant/60 uppercase tracking-wider"
               >
-                Confirm Password
+                {a.confirmPasswordLabel}
               </label>
               <div className="relative group">
                 <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors duration-150 ${
@@ -417,7 +412,7 @@ export default function RegisterPage() {
                 />
                 <button
                   type="button"
-                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                  aria-label={showConfirm ? a.hidePassword : a.showPassword}
                   onClick={() => setShowConfirm((v) => !v)}
                   tabIndex={-1}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/35 hover:text-on-surface-variant transition-colors"
@@ -430,13 +425,7 @@ export default function RegisterPage() {
               {confirmPassword && !passwordsMatch && (
                 <p className="flex items-center gap-1.5 text-[11px] text-error/80">
                   <AlertCircle className="w-3 h-3" />
-                  Passwords do not match
-                </p>
-              )}
-              {confirmPassword && password === confirmPassword && (
-                <p className="flex items-center gap-1.5 text-[11px] text-primary/70">
-                  <BookOpen className="w-3 h-3" />
-                  Passwords match
+                  {a.passwordsMismatch}
                 </p>
               )}
             </div>
@@ -450,11 +439,11 @@ export default function RegisterPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating account…
+                  {a.signingUp}
                 </>
               ) : (
                 <>
-                  Create account
+                  {a.signUp}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -462,12 +451,12 @@ export default function RegisterPage() {
           </form>
 
           <p className="text-center text-[13px] text-on-surface-variant">
-            Already have an account?{" "}
+            {a.alreadyHaveAccount}{" "}
             <Link
               href="/login"
               className="text-primary hover:text-primary/80 font-semibold transition-colors"
             >
-              Sign in →
+              {a.signInLink}
             </Link>
           </p>
         </div>
