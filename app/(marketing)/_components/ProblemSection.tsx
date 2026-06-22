@@ -1,40 +1,18 @@
-import { AlertCircle, MessageSquare, Code2, Puzzle, Repeat } from "lucide-react"
-import { glassCard } from "./constants"
+"use client"
 
-const problems = [
-  {
-    icon: AlertCircle,
-    title: "Arsitektur yang membingungkan",
-    desc: "Tidak tahu harus mulai dari mana saat merancang sistem yang kompleks. Setiap keputusan arsitektur terasa seperti menebak.",
-    impact: "Waktu terbuang, desain tidak optimal",
-  },
-  {
-    icon: MessageSquare,
-    title: "Prompt AI tidak konsisten",
-    desc: "AI memberikan output yang berbeda-beda untuk pertanyaan yang sama karena prompt tidak terstruktur dengan baik.",
-    impact: "Hasil tidak dapat diandalkan",
-  },
-  {
-    icon: Code2,
-    title: "Error yang sulit dianalisis",
-    desc: "Error kompleks butuh konteks yang panjang. Sulit menjelaskan keseluruhan kondisi sistem kepada AI dalam satu sesi.",
-    impact: "Debugging memakan waktu lama",
-  },
-  {
-    icon: Puzzle,
-    title: "Terlalu banyak tools",
-    desc: "Berpindah-pindah antara Notion, draw.io, ChatGPT, dan puluhan tools lain untuk menyelesaikan satu pekerjaan.",
-    impact: "Workflow terfragmentasi dan lambat",
-  },
-  {
-    icon: Repeat,
-    title: "Trial-and-error yang melelahkan",
-    desc: "Butuh puluhan iterasi prompt sebelum AI benar-benar memahami konteks dan memberikan output yang diinginkan.",
-    impact: "Produktivitas rendah, frustrasi tinggi",
-  },
-]
+import { AlertCircle, MessageSquare, Code2, Puzzle, Repeat } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+import { glassCard } from "./constants"
+import { useLanguage } from "@/lib/i18n/context"
+
+const PROBLEM_ICONS: LucideIcon[] = [AlertCircle, MessageSquare, Code2, Puzzle, Repeat]
 
 export function ProblemSection() {
+  const { t } = useLanguage()
+  const p = t.problem
+
+  const problems = p.items.map((item, i) => ({ ...item, icon: PROBLEM_ICONS[i] }))
+
   return (
     <section className="py-24 px-5 lg:px-10 relative overflow-hidden">
       <div
@@ -47,15 +25,15 @@ export function ProblemSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-14 space-y-4">
           <span className="inline-block text-[11px] font-mono uppercase tracking-widest text-on-surface-variant/50 border border-outline-variant px-3 py-1.5 rounded-full">
-            The Problem
+            {p.sectionBadge}
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-on-surface tracking-tight">
-            Developer workflow yang{" "}
-            <span className="text-error/80">terfragmentasi</span>
+            {p.title1}{" "}
+            <span className="text-error/80">{p.titleHighlight}</span>
+            {p.title2 ? ` ${p.title2}` : ""}
           </h2>
           <p className="text-on-surface-variant max-w-xl mx-auto">
-            Setiap hari developer menghadapi hambatan yang sama — dan semuanya berujung
-            pada satu hal: waktu yang terbuang dan output AI yang tidak optimal.
+            {p.subtitle}
           </p>
         </div>
 

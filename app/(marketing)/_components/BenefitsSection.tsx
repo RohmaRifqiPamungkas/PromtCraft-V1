@@ -1,50 +1,23 @@
+"use client"
+
 import {
   Zap, Clock, Target, TrendingUp,
   BookOpen, Network,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { gradientText } from "./constants"
+import { useLanguage } from "@/lib/i18n/context"
 
-const stats = [
-  { value: "70%", label: "Pengurangan waktu analisis", icon: Clock },
-  { value: "5×", label: "Lebih cepat membuat prompt", icon: Zap },
-  { value: "90%", label: "Konsistensi output AI", icon: Target },
-  { value: "1 Platform", label: "Menggantikan 5+ tools terpisah", icon: TrendingUp },
-]
-
-const benefits = [
-  {
-    icon: Zap,
-    title: "Prompt lebih cepat",
-    desc: "Hilangkan blank-page syndrome. Wizard terstruktur memandu Anda mengisi konteks yang tepat.",
-  },
-  {
-    icon: Target,
-    title: "Output AI lebih akurat",
-    desc: "Prompt yang terstruktur secara signifikan meningkatkan relevansi dan kualitas respons AI.",
-  },
-  {
-    icon: Clock,
-    title: "Kurangi trial-and-error",
-    desc: "Tidak perlu iterasi berkali-kali. Satu prompt yang baik menghasilkan output yang langsung bisa dipakai.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Workflow terpusat",
-    desc: "Semua tools, semua histori, semua konteks tersimpan dan saling terhubung dalam satu tempat.",
-  },
-  {
-    icon: BookOpen,
-    title: "Dokumentasi otomatis",
-    desc: "Setiap prompt dan hasil generate tersimpan — aset teknis yang bisa digunakan kembali kapanpun.",
-  },
-  {
-    icon: Network,
-    title: "Dari desain ke kode",
-    desc: "Mulai dari perancangan arsitektur, flow bisnis, hingga implementation prompt — semua dalam satu flow.",
-  },
-]
+const STAT_ICONS: LucideIcon[] = [Clock, Zap, Target, TrendingUp]
+const BENEFIT_ICONS: LucideIcon[] = [Zap, Target, Clock, TrendingUp, BookOpen, Network]
 
 export function BenefitsSection() {
+  const { t } = useLanguage()
+  const b = t.benefits
+
+  const stats    = b.stats.map((s, i)    => ({ ...s, icon: STAT_ICONS[i] }))
+  const benefits = b.items.map((item, i) => ({ ...item, icon: BENEFIT_ICONS[i] }))
+
   return (
     <section className="py-24 px-5 lg:px-10 relative overflow-hidden">
       <div
@@ -60,11 +33,11 @@ export function BenefitsSection() {
         <div>
           <div className="text-center mb-12 space-y-3">
             <span className="inline-block text-[11px] font-mono uppercase tracking-widest text-on-surface-variant/50 border border-outline-variant px-3 py-1.5 rounded-full">
-              By the Numbers
+              {b.sectionBadge}
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-on-surface tracking-tight">
-              Dampak nyata{" "}
-              <span className={gradientText}>untuk produktivitas</span>
+              {b.title1}{" "}
+              <span className={gradientText}>{b.title2}</span>
             </h2>
           </div>
 
@@ -106,7 +79,7 @@ export function BenefitsSection() {
           <div className="flex items-center gap-4 mb-10">
             <div className="flex-1 h-px bg-outline-variant/30" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/35 px-1 shrink-0">
-              Core Benefits
+              {b.coreBenefits}
             </span>
             <div className="flex-1 h-px bg-outline-variant/30" />
           </div>

@@ -1,7 +1,13 @@
+"use client"
+
 import Link from "next/link"
 import { Check, Sparkles, ArrowRight, FileText } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/context"
 
 export function CTASection() {
+  const { t } = useLanguage()
+  const c = t.cta
+
   return (
     <section className="py-24 px-5 lg:px-10">
       <div className="max-w-4xl mx-auto">
@@ -30,11 +36,11 @@ export function CTASection() {
           <div className="relative z-10 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-mono text-primary">
               <Sparkles className="w-3 h-3" />
-              Get Started Today — Free
+              {c.badge}
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-on-surface tracking-tight leading-tight">
-              Build Better Systems.
+              {c.title1}
               <br />
               <span
                 style={{
@@ -43,13 +49,12 @@ export function CTASection() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                Generate Better Prompts.
+                {c.title2}
               </span>
             </h2>
 
             <p className="text-on-surface-variant max-w-xl mx-auto leading-relaxed">
-              Mulai dari ide, desain sistem, hingga prompt production-ready dalam satu platform.
-              Tidak perlu kartu kredit. Tidak perlu instalasi.
+              {c.subtitle}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -59,19 +64,19 @@ export function CTASection() {
                 style={{ boxShadow: "0 8px 32px -8px rgba(78,222,163,0.4)" }}
               >
                 <Sparkles className="w-4 h-4" />
-                Get Started — Free
+                {c.getStarted}
               </Link>
               <Link
                 href="/templates"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl border border-outline-variant bg-surface-container text-on-surface text-sm font-medium hover:bg-surface-container-high transition-all duration-150"
               >
                 <FileText className="w-4 h-4" />
-                Explore Templates
+                {c.exploreTemplates}
               </Link>
             </div>
 
             <div className="flex items-center justify-center gap-6 pt-4 flex-wrap">
-              {["Free to use", "No credit card", "Instant access"].map((item) => (
+              {[c.freeToUse, c.noCreditCard, c.instantAccess].map((item) => (
                 <div key={item} className="flex items-center gap-1.5 text-[11px] text-on-surface-variant/50">
                   <Check className="w-3 h-3 text-primary/50" />
                   {item}

@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import {
   Network, Wand2, FileText, History,
@@ -7,97 +9,68 @@ import {
   LayoutDashboard, Sparkles, BookOpen,
   Clock, Target, TrendingUp,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { glassCard, gradientText } from "./constants"
+import { useLanguage } from "@/lib/i18n/context"
 
-const features = [
+/* Static visual data (not translated) */
+const FEATURE_META = [
   {
     icon: Network,
     color: "text-secondary",
     bgColor: "bg-secondary/5 border-secondary/20",
-    badge: "System Design",
-    title: "Rancang Sistem Sebelum Menulis Kode",
-    desc: "Bangun blueprint arsitektur yang solid dengan panduan terstruktur. Dari high-level design hingga detail teknis.",
-    highlights: [
-      { icon: GitBranch, text: "Architecture Planning" },
-      { icon: Database, text: "Database Relationship Design" },
-      { icon: Code2, text: "API Structure Planning" },
-      { icon: Layers, text: "Requirement Breakdown" },
-    ],
-    quote: "Ubah ide mentah menjadi blueprint yang siap dikembangkan.",
     href: "/system-design",
+    highlightIcons: [GitBranch, Database, Code2, Layers] as LucideIcon[],
   },
   {
     icon: Wand2,
     color: "text-primary",
     bgColor: "bg-primary/5 border-primary/20",
-    badge: "Prompt Builder",
-    title: "Generate Prompt Berkualitas Tinggi",
-    desc: "Mesin utama untuk menghasilkan prompt yang lebih akurat, terstruktur, dan mudah dipahami oleh AI.",
-    highlights: [
-      { icon: Code2, text: "Backend & Frontend Dev" },
-      { icon: AlertCircle, text: "Debugging Assist" },
-      { icon: RefreshCw, text: "Code Refactoring" },
-      { icon: TestTube, text: "Testing & Review" },
-    ],
-    quote: "Prompt yang lebih akurat = output AI yang lebih baik.",
     href: "/prompt-generator",
+    highlightIcons: [Code2, AlertCircle, RefreshCw, TestTube] as LucideIcon[],
   },
   {
     icon: FileText,
     color: "text-tertiary",
     bgColor: "bg-surface-container-high border-outline-variant",
-    badge: "Templates",
-    title: "Mulai Lebih Cepat dengan Templates",
-    desc: "Kumpulan template siap pakai untuk berbagai use case. Dari SaaS hingga AI Agent, semuanya tersedia.",
-    highlights: [
-      { icon: Layers, text: "SaaS & E-Commerce" },
-      { icon: LayoutDashboard, text: "Dashboard Apps" },
-      { icon: Sparkles, text: "AI Agent Design" },
-      { icon: BookOpen, text: "API Service" },
-    ],
-    quote: "Mulai dalam hitungan detik tanpa perlu dari nol.",
     href: "/templates",
+    highlightIcons: [Layers, LayoutDashboard, Sparkles, BookOpen] as LucideIcon[],
   },
   {
     icon: History,
     color: "text-primary",
     bgColor: "bg-primary/5 border-primary/20",
-    badge: "History",
-    title: "Dokumentasi Otomatis Setiap Sesi",
-    desc: "Seluruh aktivitas prompt dan hasil generate tersimpan otomatis, terorganisir, dan mudah diakses kembali.",
-    highlights: [
-      { icon: Clock, text: "Auto-saved sessions" },
-      { icon: Target, text: "Searchable history" },
-      { icon: RefreshCw, text: "Re-use past prompts" },
-      { icon: TrendingUp, text: "Track improvements" },
-    ],
-    quote: "Seluruh pekerjaan Anda terdokumentasi dan siap digunakan ulang.",
     href: "/history",
+    highlightIcons: [Clock, Target, RefreshCw, TrendingUp] as LucideIcon[],
   },
 ]
 
 export function FeaturesSection() {
+  const { t } = useLanguage()
+  const f = t.features
+
+  const features = FEATURE_META.map((meta, i) => ({ ...meta, ...f.items[i] }))
+
   return (
     <section id="features" className="py-24 px-5 lg:px-10">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-4">
           <span className="inline-block text-[11px] font-mono uppercase tracking-widest text-on-surface-variant/50 border border-outline-variant px-3 py-1.5 rounded-full">
-            Feature Showcase
+            {f.sectionBadge}
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-on-surface tracking-tight">
-            Ekosistem lengkap dalam{" "}
-            <span className={gradientText}>satu platform</span>
+            {f.sectionTitle1}{" "}
+            <span className={gradientText}>{f.sectionTitle2}</span>
           </h2>
           <p className="text-on-surface-variant max-w-xl mx-auto">
-            Setiap fitur dirancang untuk bekerja bersama — bukan sebagai tool terpisah,
-            melainkan sebagai satu workflow yang kohesif.
+            {f.sectionSubtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {features.map(({ icon: Icon, color, bgColor, badge, title, desc, highlights, quote, href }) => (
+          {features.map(({ icon: Icon, color, bgColor, badge, title, desc, highlights, highlightIcons, quote, href }) => (
             <Link
-              key={badge}
+              key={href}
               href={href}
               className={`${glassCard} p-6 space-y-5 hover:bg-surface-container-high transition-all duration-200 group block`}
             >
@@ -118,12 +91,15 @@ export function FeaturesSection() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                {highlights.map(({ icon: HIcon, text }) => (
-                  <div key={text} className="flex items-center gap-2 text-[11px] text-on-surface-variant/60">
-                    <HIcon className="w-3.5 h-3.5 shrink-0 text-on-surface-variant/40" strokeWidth={1.5} />
-                    {text}
-                  </div>
-                ))}
+                {highlights.map((text, idx) => {
+                  const HIcon = highlightIcons[idx]
+                  return (
+                    <div key={text} className="flex items-center gap-2 text-[11px] text-on-surface-variant/60">
+                      <HIcon className="w-3.5 h-3.5 shrink-0 text-on-surface-variant/40" strokeWidth={1.5} />
+                      {text}
+                    </div>
+                  )
+                })}
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-outline-variant/40">
