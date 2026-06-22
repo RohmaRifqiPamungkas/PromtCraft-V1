@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Inter, JetBrains_Mono } from "next/font/google"
+import { LanguageProvider } from "@/lib/i18n/context"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -28,7 +29,7 @@ export default function RootLayout({
       className={`dark ${geistSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="h-screen overflow-hidden antialiased">
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   )
